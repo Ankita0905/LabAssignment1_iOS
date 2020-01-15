@@ -17,8 +17,10 @@ class ViewController: UIViewController,CLLocationManagerDelegate {
     var pinLocation: CLLocationCoordinate2D!
     var pin : Int = 0
     var distance = [Double]()
+    let request=MKDirections.Request()
     
 
+    @IBOutlet weak var transportType: UISegmentedControl!
     @IBOutlet weak var zoomStepper: UIStepper!
     @IBOutlet weak var mapView: MKMapView!
     override func viewDidLoad() {
@@ -53,6 +55,7 @@ class ViewController: UIViewController,CLLocationManagerDelegate {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
+        
         adddoubleTap()
     }
     
@@ -67,7 +70,18 @@ class ViewController: UIViewController,CLLocationManagerDelegate {
                    let request = MKDirections.Request()
                    request.source = MKMapItem(placemark: sourcePlaceMark)
                     request.destination = MKMapItem(placemark: destinationPlacMark)
-                    request.transportType = .automobile
+                   // request.transportType = .automobile
+        if transportType.selectedSegmentIndex == 0
+        {
+            request.transportType = .automobile
+            
+        }
+        else if transportType.selectedSegmentIndex == 1
+        {
+            request.transportType = .walking
+            
+        }
+        
         
         let directions = MKDirections(request: request)
 
@@ -82,9 +96,35 @@ class ViewController: UIViewController,CLLocationManagerDelegate {
         }
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
-            renderer.strokeColor = UIColor.blue
+            
+            if transportType.selectedSegmentIndex == 0
+            {
+                
+                renderer.strokeColor=UIColor.blue
+            }
+            else if transportType.selectedSegmentIndex == 1
+            {
+               
+                renderer.strokeColor=UIColor.green
+            }
+//            renderer.strokeColor = UIColor.blue
+            renderer.lineWidth=2
             return renderer
         }
+    
+    
+    @IBAction func transportTypeChange(_ sender: UISegmentedControl) {
+//        switch transportType.selectedSegmentIndex {
+//        case 0:
+//            request.transportType = .automobile
+//
+//        case 1:
+//            request.transportType = .walking
+//
+//        default:
+//            request.transportType = .automobile
+//        }
+    }
     
     func zoomMap(byFactor delta: Double) {
       var region: MKCoordinateRegion = self.mapView.region
@@ -135,7 +175,7 @@ extension ViewController : UIGestureRecognizerDelegate, MKMapViewDelegate {
 
    @objc func dropPin(sender: UITapGestureRecognizer) {
     
-deletePin()
+       deletePin()
        pin = pin + 1
        mapView.removeOverlays(mapView.overlays)
        let touchPoint = sender.location(in: mapView)
